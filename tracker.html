@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPS Tracker</title>
+</head>
+<body>
+
+<h1>GPS Tracker Running</h1>
+
+<script>
+const SERVER_URL = "https://points-joy-ali-taught.trycloudflare.com";
+
+document.body.innerHTML += "<p>Starting GPS...</p>";
+
+navigator.geolocation.watchPosition(
+  async (position) => {
+
+    const data = {
+      vehicleId: "tractor-1",
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      speed: position.coords.speed,
+      timestamp: new Date().toISOString()
+    };
+
+    document.body.innerHTML += `
+      <p>
+        LAT: ${data.lat}<br>
+        LNG: ${data.lng}
+      </p>
+    `;
+
+    try {
+        const response = await fetch(`${SERVER_URL}/api/location`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.body.innerHTML += "<p>Sent successfully</p>";
+
+    } catch (err) {
+      document.body.innerHTML += `<p>ERROR: ${err}</p>`;
+      console.error(err);
+    }
+
+  },
+  (err) => {
+    document.body.innerHTML += `<p>GPS ERROR: ${err.message}</p>`;
+  },
+  {
+    enableHighAccuracy: true,
+    maximumAge: 0,
+    timeout: 5000
+  }
+);
+</script>
+
+</body>
+</html>
